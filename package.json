@@ -1,0 +1,9 @@
+{
+  "name": "poetrycalc",
+  "private": true,
+  "description": "Sestina: a writing tool that fills in a sestina's end words as you write",
+  "scripts": {
+    "test": "node --test",
+    "build": "node build.js"
+  }
+}
