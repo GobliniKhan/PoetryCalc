@@ -534,8 +534,29 @@
     fallback();
   });
 
+  // Inside a Claude artifact viewer, plain downloads are blocked, so use
+  // the viewer's save prompt when it offers one.
+  let viewerDownloads = null;
+  try {
+    if (window.claude && typeof window.claude.use === 'function') {
+      window.claude.use('downloads').then((d) => (viewerDownloads = d), () => {});
+    }
+  } catch (e) {
+    /* not in a viewer */
+  }
+
   $('btn-download').addEventListener('click', () => {
     const text = S.toPlainText(poem);
+    if (viewerDownloads) {
+      viewerDownloads.save({ filename: fileName(), data: text }).then(
+        () => toast('Saved ' + fileName()),
+        (err) => {
+          if (err && err.code === 'declined') return;
+          showCopyFallback(text);
+        }
+      );
+      return;
+    }
     try {
       const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
       const a = el('a');
